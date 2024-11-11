@@ -1,1 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Learning Game</title>
+  <script src="https://unpkg.com/jspsych@8.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.0.0"></script>
+  <link href="https://unpkg.com/jspsych@8.0.0/css/jspsych.css" rel="stylesheet" type="text/css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@jspsych/plugin-preload@2.0.0"></script>
+
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #cfd9df, #e2ebf0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100%;
+      overflow-x: hidden;
+      color: #333;
+    }
+
+    .jspsych-display-element {
+      max-width: 100%;
+      text-align: center;
+      padding: 50px;
+      background: #ffffff;
+      box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      transition: transform 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .jspsych-display-element:hover {
+      transform: scale(1.02);
+    }
+
+    .jspsych-html-keyboard-response-stimulus {
+      font-size: 1.4em;
+      color: #4a4a4a;
+      line-height: 1.8;
+      margin-bottom: 1.5em;
+      text-align: center;
+      width: 100%;
+    }
+
+    .typing-effect {
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 2px solid black; 
+      display: inline-block;
+      width: 0; 
+      animation: typing 5s steps(40, end) forwards, blink 0.8s step-end infinite;
+    }
+
+    @keyframes typing {
+      from {
+        width: 0;
+      }
+
+      to {
+        width: 100%;
+      }
+    }
+
+    @keyframes blink {
+      from,
+      to {
+        border-color: transparent;
+      }
+
+      50% {
+        border-color: #4a4a4a;
+      }
+    }
+
+    .press-any-key {
+      opacity: 0;
+      font-weight: bold;
+      margin-top: 20px;
+      transition: opacity 0.5s ease;
+    }
+
+    .image-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 20px;
+      gap: 80px;
+      width: 100%; 
+      flex-wrap: wrap;
+    }
+
+    .image-container img {
+      width:300px; 
+      height: auto; 
+      border-radius: 8px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .image-container img:hover {
+      transform: scale(1.05);
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .timer {
+      font-size: 2em;
+      color: #333;
+      margin-top: 10px;
+    }
+
+    /* Countdown style */
+    .countdown-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: rgba(0, 0, 0, 0.5); /* Translucent background */
+      color: white;
+      font-size: 8em;
+      font-weight: bold;
+      z-index: 100;
+    }
+
+  </style>
+</head>
+
+<body>
+  <script>
+    var jsPsych = initJsPsych({
+      override_safe_mode: true
+    });
+
+    var timeline = [];
+
+    var welcome = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <div class="jspsych-html-keyboard-response-stimulus">
+          <p>Welcome to the experiment.</p>
+          <p>Press any key to begin.</p>
+          <div class="press-any-key">Press any key to begin</div>
+        </div>
+      `,
+    };
+    timeline.push(welcome);
+
+    // Typing effect for instructions
+    var instructions = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <div class="jspsych-html-keyboard-response-stimulus">
+          <p id="line1"></p>
+          <p id="line2"></p>
+          <p id="line3"></p>
+          <p id="line4"></p>
+          <p id="line5"></p>
+          <p id="line6"></p>
+          <p id="line7"></p>
+          <div class="press-any-key" style="opacity: 0;">Press any key to begin</div>
+        </div>
+      `,
+      on_load: function () {
+        const lines = [
+          "You will view pairs of images and pseudo-word audios across three conditions: 2x2, 3x3, and 4x4.",
+          "Your goal is to learn which word matches each image.",
+          "There won't be direct hints, but repetition will help you infer the correct matches.",
+          "Each trial lasts 6 seconds and changes automatically.",
+          "After each condition, you will take a brief test to match images to words.",
+          "You're now in the 2x2 condition with 54 trials.",
+          "Each trial will display 2 images and 2 words."
+        ];
+        
+        const typingSpeed = 50;
+        const sentenceDelay = 200;  // Define a delay between sentences
+
+        function typeLine(lineIndex) {
+          if (lineIndex < lines.length) {
+            const element = document.getElementById('line' + (lineIndex + 1));
+            let i = 0;
+            const typingInterval = setInterval(() => {
+              element.textContent += lines[lineIndex][i];
+              i++;
+              if (i === lines[lineIndex].length) {
+                clearInterval(typingInterval);
+                element.classList.remove('typing-effect');
+                setTimeout(() => {
+                  typeLine(lineIndex + 1); // Type the next line with a delay
+                }, sentenceDelay);
+              }
+            }, typingSpeed);
+          } else {
+            document.querySelector('.press-any-key').style.opacity = 1;
+          }
+        }
+
+        setTimeout(() => {
+          typeLine(0); // Start typing the first line
+        }, 500);
+      }
+    };
+    timeline.push(instructions);
+
+    var preload = {
+      type: jsPsychPreload,
+      images: [
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/4f3e5673cdbf327215f437a8effd602cbbd90a6b/stimuli/condition1/image/img/1.bmp",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/4f3e5673cdbf327215f437a8effd602cbbd90a6b/stimuli/condition1/image/img/2.bmp"
+      ],
+      audio: [
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/4f3e5673cdbf327215f437a8effd602cbbd90a6b/stimuli/condition1/audio/audio/1.wav",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/37eb1fbf9429cc66a5474473abf6ffdd88dde6a1/stimuli/condition1/audio/audio/2.wav"
+      ]
+    };
+    timeline.push(preload);
+
+    var countdown_3 = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<div class="countdown-container">3</div>',
+      choices: "NO_KEYS",
+      trial_duration: 1000
+    };
+
+    var countdown_2 = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<div class="countdown-container">2</div>',
+      choices: "NO_KEYS",
+      trial_duration: 1000
+    };
+
+    var countdown_1 = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<div class="countdown-container">1</div>',
+      choices: "NO_KEYS",
+      trial_duration: 1000
+    };
+
+    var image_audio_trial = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <div class="image-container">
+          <img src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/4f3e5673cdbf327215f437a8effd602cbbd90a6b/stimuli/condition1/image/img/1.bmp" alt="Image 1">
+          <img src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/4f3e5673cdbf327215f437a8effd602cbbd90a6b/stimuli/condition1/image/img/2.bmp" alt="Image 2">
+        </div>
+        <div class="timer">Time Remaining: <span id="timer">6</span> seconds</div>
+        <audio id="audio1">
+          <source src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/4f3e5673cdbf327215f437a8effd602cbbd90a6b/stimuli/condition1/audio/audio/1.wav" type="audio/wav">
+        </audio>
+        <audio id="audio2">
+          <source src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/37eb1fbf9429cc66a5474473abf6ffdd88dde6a1/stimuli/condition1/audio/audio/2.wav" type="audio/wav">
+        </audio>
+      `,
+      choices: "NO_KEYS",
+      trial_duration: 6000,
+      on_load: () => {
+        const audio1 = document.getElementById('audio1');
+        const audio2 = document.getElementById('audio2');
+        const timerElement = document.getElementById('timer');
+        let startTime = Date.now();
+        let timeRemaining = 6;
+
+        const timerInterval = setInterval(() => {
+            let currentTime = Date.now();
+            let elapsedTime = Math.floor((currentTime - startTime) / 1000);
+            timeRemaining = 6 - elapsedTime;
+            timerElement.textContent = timeRemaining;
+            if (timeRemaining <= 0) {
+              clearInterval(timerInterval);
+          }
+        }, 1000);
+
+        audio1.play();
+        audio1.onended = function () {
+          setTimeout(function () {
+            audio2.play();
+          }, 1000);
+        };
+
+        audio1.onerror = () => console.log("Error playing audio1");
+        audio2.onerror = () => console.log("Error playing audio2");
+      }
+    };
+
+    timeline.push(countdown_3, countdown_2, countdown_1, image_audio_trial);
+
+    function createImageAudioTrial(image_a, image_b, audio_a, audio_b) {
+        var preload = {
+        type: jsPsychPreload,
+        images: [image_a, image_b],
+        audio: [audio_a, audio_b]
+      };
+      var imageAudioTrial = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: `
+          <div class="image-container">
+            <img src="${image_a}" alt="Image a">
+            <img src="${image_b}" alt="Image b">
+          </div>
+          <div class="timer">Time Remaining: <span id="timer">6</span> seconds</div>
+          <audio id="audio_a">
+            <source src="${audio_a}" type="audio/wav">
+          </audio>
+          <audio id="audio_b">
+            <source src="${audio_b}" type="audio/wav">
+          </audio>
+        `,
+        choices: "NO_KEYS",
+        trial_duration: 6000,
+        on_load: () => {
+          const audio_a = document.getElementById('audio_a');
+          const audio_b = document.getElementById('audio_b');
+          const timerElement = document.getElementById('timer');
+          let startTime = Date.now();
+          let timeRemaining = 6;
+
+          const timerInterval = setInterval(() => {
+            let currentTime = Date.now();
+            let elapsedTime = Math.floor((currentTime - startTime) / 1000);
+            timeRemaining = 6 - elapsedTime;
+            timerElement.textContent = timeRemaining;
+            if (timeRemaining <= 0) {
+              clearInterval(timerInterval);
+            }
+          }, 1000);
+
+          audio_a.play();
+          audio_a.onended = function () {
+            setTimeout(function () {
+              audio_b.play();  // Play the second audio after a delay
+            }, 1000);
+          };
+
+          // Error handling for audio playback
+          audio_a.onerror = () => console.log("Error playing audio_a");
+          audio_b.onerror = () => console.log("Error playing audio_b");
+        }
+      };
+      return [preload, imageAudioTrial];
+    }
+    timeline.push(createImageAudioTrial(
+      "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/b64ea5ec2ad7449f8dc4c0fa72a01a3b8ba3141c/stimuli/condition1/image/img/3.bmp", 
+      "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/b64ea5ec2ad7449f8dc4c0fa72a01a3b8ba3141c/stimuli/condition1/image/img/4.bmp", 
+      "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/b64ea5ec2ad7449f8dc4c0fa72a01a3b8ba3141c/stimuli/condition1/audio/audio/3.wav", 
+      "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/b64ea5ec2ad7449f8dc4c0fa72a01a3b8ba3141c/stimuli/condition1/audio/audio/4.wav"  
+    ));
+
+  
+
+    jsPsych.run(timeline);
+  </script>
+</body>
+
+</html>
 
