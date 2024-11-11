@@ -148,6 +148,9 @@
       override_safe_mode: true
     });
 
+    const subject_id = jsPsych.randomization.randomID(10);
+    const filename = `${subject_id}.csv`;
+
     var timeline = [];
 
     var welcome = {
@@ -729,15 +732,28 @@ var test_trials2 = test_items2.map((item) => {
           ${choiceMapping
             .map(
               (choice) =>
-                `<button class="jspsych-btn" style="width: 150px; height: 150px; padding: 0;">
-                  <img src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/40c37faca733d92b1121274138b7191f2e9e1bf2/stimuli/condition2/image/${choice.value}.jpg" alt="Image ${choice.value}" style="width: 100%; height: 100%;">
-                  <div style="margin-top: 5px; font-weight: bold;">${choice.label}</div>
+                `<div style="display: flex; flex-direction: column; align-items: center;">
+                  <img src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/40c37faca733d92b1121274138b7191f2e9e1bf2/stimuli/condition2/image/${choice.value}.jpg" 
+                       alt="Image ${choice.value}" 
+                       style="width: 150px; height: 150px; display: block;">
+                  <div style="margin-top: 10px; font-weight: bold;">${choice.label}</div>
+                </div>`
+            )
+            .join("")}
+        </div>
+        <div style="display: flex; justify-content: center; gap: 20px; margin-top: 50px;">
+          ${letterChoices
+            .map(
+              (label) =>
+                `<button class="jspsych-btn" style="width: 80px; height: 50px; font-size: 16px; font-weight: bold;">
+                  ${label}
                 </button>`
             )
             .join("")}
         </div>
       </div>
     `,
+    
     choices: letterChoices,
     data: {
       correct_choice: letterChoices[options.indexOf(item)],
