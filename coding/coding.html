@@ -1036,14 +1036,14 @@ var test_trials3 = test_items3.map((item) => {
     stimulus: `
       <div style="text-align: center;">
         <p>Listen to the audio and select the matching image:</p>
-        <audio src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/condition3/audio/${item}.mp3" autoplay></audio>
+        <audio src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/40c37faca733d92b1121274138b7191f2e9e1bf2/stimuli/condition3/audio/${item}.mp3" autoplay></audio>
         <div style="display: flex; justify-content: center; gap: 40px; margin-top: 20px;">
           ${choiceMapping
             .map(
               (choice) =>
                 `<div style="display: flex; flex-direction: column; align-items: center;">
                   <button class="jspsych-btn" style="padding: 0; border: none; background: none;">
-                    <img src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/condition3/image/${choice.value}.jpg" 
+                    <img src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/40c37faca733d92b1121274138b7191f2e9e1bf2/stimuli/condition3/image/${choice.value}.jpg" 
                          alt="Image ${choice.value}" 
                          style="width: 150px; height: 150px; display: block;">
                   </button>
@@ -1054,6 +1054,7 @@ var test_trials3 = test_items3.map((item) => {
         </div>
       </div>
     `,
+
     choices: letterChoices,
     data: {
       correct_choice: letterChoices[options.indexOf(item)],
