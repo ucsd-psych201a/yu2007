@@ -1096,6 +1096,30 @@ const save_data3 = {
 
 timeline.push(save_data3);
 
+var thank_you_page = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: `
+      <div style="text-align: center; font-size: 18px; line-height: 1.6;">
+        <h1 style="font-size: 24px; color: #4a4a4a;">Thank You for Participating!</h1>
+        <p>We greatly appreciate your participation in this study.</p>
+        <p><strong>Debriefing:</strong></p>
+        <p>This study aims to investigate how individuals learn associations between words and objects through exposure to varying visual and auditory stimuli.</p>
+        <p>Your responses will help us better understand learning processes and may contribute to the design of future educational and cognitive models.</p>
+        <p>If you have any questions about this study or your participation, please contact us:</p>
+        <p>Emails:</p>
+<ul style="list-style-type: none; padding: 0;">
+  <li><a href="mailto:a2park@ucsd.edu">a2park@ucsd.edu</a></li>
+  <li><a href="mailto:hjunyi@ucsd.edu">hjunyi@ucsd.edu</a></li>
+  <li><a href="mailto:pcui@ucsd.edu">pcui@ucsd.edu</a></li>
+  <li><a href="mailto:yad014@ucsd.edu">yad014@ucsd.edu</a></li>
+</ul>
+        <p>Press any key to exit.</p>
+      </div>
+  `,
+};
+
+timeline.push(thank_you_page);
+
 jsPsych.run(timeline);
 
   </script>
