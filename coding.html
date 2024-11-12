@@ -223,12 +223,12 @@
     var preload = {
       type: jsPsychPreload,
       images: [
-        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/4f3e5673cdbf327215f437a8effd602cbbd90a6b/stimuli/condition1/image/img/1.bmp",
-        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/4f3e5673cdbf327215f437a8effd602cbbd90a6b/stimuli/condition1/image/img/2.bmp"
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/4f3e5673cdbf327215f437a8effd602cbbd90a6b/stimuli/condition1/image/1.bmp",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/4f3e5673cdbf327215f437a8effd602cbbd90a6b/stimuli/condition1/image/2.bmp"
       ],
       audio: [
-        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/4f3e5673cdbf327215f437a8effd602cbbd90a6b/stimuli/condition1/audio/audio/1.wav",
-        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/37eb1fbf9429cc66a5474473abf6ffdd88dde6a1/stimuli/condition1/audio/audio/2.wav"
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/4f3e5673cdbf327215f437a8effd602cbbd90a6b/stimuli/condition1/audio/1.mp3",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/37eb1fbf9429cc66a5474473abf6ffdd88dde6a1/stimuli/condition1/audio/2.mp3"
       ]
     };
     timeline.push(preload);
@@ -254,10 +254,10 @@
       trial_duration: 1000
     };
 
-    const imageBaseURL = "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/b64ea5ec2ad7449f8dc4c0fa72a01a3b8ba3141c/stimuli/condition1/image/img/";
-    const audioBaseURL = "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/b64ea5ec2ad7449f8dc4c0fa72a01a3b8ba3141c/stimuli/condition1/audio/audio/";
+    const imageBaseURL = "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/b64ea5ec2ad7449f8dc4c0fa72a01a3b8ba3141c/stimuli/condition1/image/";
+    const audioBaseURL = "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/b64ea5ec2ad7449f8dc4c0fa72a01a3b8ba3141c/stimuli/condition1/audio/";
     const fileExtensionImage = ".bmp";
-    const fileExtensionAudio = ".wav";
+    const fileExtensionAudio = ".mp3";
 
     // Function to shuffle array
     function shuffleArray(array) {
@@ -431,13 +431,13 @@ var test_trials = test_items.map((item) => {
     stimulus: `
       <div style="text-align: center;">
         <p>Listen to the audio and select the matching image:</p>
-        <audio src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/b64ea5ec2ad7449f8dc4c0fa72a01a3b8ba3141c/stimuli/condition1/audio/audio/${item}.wav" autoplay></audio>
+        <audio src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/b64ea5ec2ad7449f8dc4c0fa72a01a3b8ba3141c/stimuli/condition1/audio/${item}.mp3" autoplay></audio>
         <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
           ${options
             .map(
               (option) =>
                 `<button class="jspsych-btn" style="width: 150px; height: 150px; padding: 0;">
-                  <img src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/b64ea5ec2ad7449f8dc4c0fa72a01a3b8ba3141c/stimuli/condition1/image/img/${option}.bmp" alt="Image ${option}" style="width: 100%; height: 100%; display: block; visibility: visible;">
+                  <img src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/b64ea5ec2ad7449f8dc4c0fa72a01a3b8ba3141c/stimuli/condition1/image/${option}.bmp" alt="Image ${option}" style="width: 100%; height: 100%; display: block; visibility: visible;">
                 </button>`
             )
             .join("")}
