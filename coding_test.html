@@ -460,10 +460,12 @@ var test_trials = test_items.map((item) => {
       correct_image: `${item}`,
     },
     on_finish: function (data) {
-      data.response_letter = data.response; 
-      data.correct = data.response === data.correct_choice;
-      data.response_time = data.rt;
-    },
+        const letterChoices = ["A", "B", "C", "D"];
+        data.response_letter = letterChoices[data.response];
+        data.correct = data.response_letter === data.correct_choice;
+        data.response_time = data.rt;
+},
+
   };
 });
 
