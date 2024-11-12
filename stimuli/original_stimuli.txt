@@ -1,0 +1,37 @@
+1. permy 
+	CVC CV 
+2. gelm
+	CVC C
+3. manu
+	CV CV 
+4. stigzm
+	CCVC CC
+5. ferzle
+	CVC CV
+6. thurth (voiced th coda)
+	CVCC
+7. getl
+	CVC C
+8. collit
+	CV CVC
+9. lano
+	CV CV
+10. kyupth (voiceless th coda)
+	CCVCC
+11. shigy
+	CV CV
+12. minu
+	CV CV
+13. gatrin
+	CV CCVC
+14. gazzer
+	CVC VC
+15. ragl
+	CV CV
+16. dima
+	CV CV 
+17. vindy
+	CVC CV
+18. blicket
+	CCVCC VC
+
