@@ -480,7 +480,11 @@ var save_data_condition1 = {
   experiment_id: "fgtw92SxkLKC",
   filename: condition1_filename,
   data_string: () => jsPsych.data.get().csv(),
+  on_finish: function() {
+    jsPsych.data.reset();
+  }
 };
+timeline.push(save_data_condition1);
 
 timeline.push(save_data_condition1);
 
@@ -785,8 +789,10 @@ var save_data_condition2 = {
   experiment_id: "fgtw92SxkLKC",
   filename: condition2_filename,
   data_string: () => jsPsych.data.get().csv(),
+  on_finish: function() {
+    jsPsych.data.reset();
+  }
 };
-
 timeline.push(save_data_condition2);
 
 // CONDITION 3
