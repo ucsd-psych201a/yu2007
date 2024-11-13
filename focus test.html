@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gold Miner Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background-color: #87CEEB;
+    }
+    canvas {
+      display: block;
+    }
+    #game-over {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2em;
+      text-align: center;
+      color: #fff;
+    }
+    #win-message {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <div id="game-over" style="display:none;">
+    <div id="win-message">You Win!</div>
+    <button onclick="startGame()">Play Again</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Game variables
+    let hookAngle = 0;
+    let hookDirection = 1;
+    let isReleasing = false;
+    let goldPieces = [];
+    const hookLength = 100;
+    const hookSpeed = 2;
+    const hookGrabSpeed = 5;
+    let hookEnd = { x: canvas.width / 2, y: 0 };
+    let hookGrab = { x: 0, y: 0 };
+
+    // Generate random gold positions
+    function generateGoldPieces(count) {
+      goldPieces = [];
+      for (let i = 0; i < count; i++) {
+        const x = Math.random() * (canvas.width - 100) + 50;
+        const y = Math.random() * (canvas.height - 200) + 150;
+        goldPieces.push({ x, y, radius: 20, collected: false });
+      }
+    }
+
+    // Draw supplemental lines
+    function drawSupplementalLines() {
+      ctx.strokeStyle = "#ccc";
+      ctx.lineWidth = 1;
+
+      // Horizontal lines
+      for (let y = 50; y < canvas.height; y += 50) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      // Vertical lines
+      for (let x = 50; x < canvas.width; x += 50) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+    }
+
+    // Draw hook
+    function drawHook() {
+      ctx.beginPath();
+      ctx.moveTo(canvas.width / 2, 0);
+      ctx.lineTo(hookEnd.x, hookEnd.y);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+      // Draw hook end
+      ctx.beginPath();
+      ctx.arc(hookEnd.x, hookEnd.y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#000';
+      ctx.fill();
+    }
+
+    // Draw gold
+    function drawGold() {
+      for (const gold of goldPieces) {
+        if (!gold.collected) {
+          ctx.beginPath();
+          ctx.arc(gold.x, gold.y, gold.radius, 0, Math.PI * 2);
+          ctx.fillStyle = 'gold';
+          ctx.fill();
+          ctx.strokeStyle = '#DAA520';
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Check collision between hook and gold
+    function checkCollision() {
+      for (const gold of goldPieces) {
+        if (!gold.collected) {
+          const dx = gold.x - hookGrab.x;
+          const dy = gold.y - hookGrab.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < gold.radius + 5) {
+            gold.collected = true;
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // Reset game
+    function resetGame() {
+      hookAngle = 0;
+      hookDirection = 1;
+      isReleasing = false;
+      generateGoldPieces(5); // Set the number of gold pieces here
+    }
+
+    // Start game
+    function startGame() {
+      resetGame();
+      document.getElementById('game-over').style.display = 'none';
+      animate();
+    }
+
+    // Game loop
+    function animate() {
+      if (goldPieces.every(g => g.collected)) {
+        document.getElementById('game-over').style.display = 'block';
+        return;
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Swing the hook
+      if (!isReleasing) {
+        hookAngle += hookSpeed * hookDirection;
+        if (hookAngle > 45 || hookAngle < -45) {
+          hookDirection *= -1;
+        }
+      }
+
+      // Calculate hook position
+      const rad = (hookAngle * Math.PI) / 180;
+      if (!isReleasing) {
+        hookEnd.x = canvas.width / 2 + Math.cos(rad) * hookLength;
+        hookEnd.y = Math.sin(rad) * hookLength;
+      } else {
+        hookGrab.x += hookGrabSpeed * Math.cos(rad);
+        hookGrab.y += hookGrabSpeed * Math.sin(rad);
+        hookEnd.x = hookGrab.x;
+        hookEnd.y = hookGrab.y;
+
+        // Check collision with gold
+        if (checkCollision()) {
+          resetGame();
+          return;
+        }
+
+        // Stop hook if out of bounds
+        if (hookEnd.x < 0 || hookEnd.x > canvas.width || hookEnd.y > canvas.height) {
+          resetGame();
+          return;
+        }
+      }
+
+      drawSupplementalLines();
+      drawHook();
+      drawGold();
+      requestAnimationFrame(animate);
+    }
+
+    // Handle input
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !isReleasing) {
+        isReleasing = true;
+        hookGrab.x = hookEnd.x;
+        hookGrab.y = hookEnd.y;
+      }
+    });
+
+    // Initialize game
+    startGame();
+  </script>
+</body>
+</html>
