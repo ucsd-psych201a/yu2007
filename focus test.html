@@ -1,208 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gold Miner Game</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      background-color: #87CEEB;
-    }
-    canvas {
-      display: block;
-    }
-    #game-over {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 2em;
-      text-align: center;
-      color: #fff;
-    }
-    #win-message {
-      color: green;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Flower Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #e3f2fd;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #90caf9, #4fc3f7);
+        }
+        h1 {
+            margin-top: 10px;
+            font-size: 3em;
+            color: #0288d1;
+        }
+        #instruction {
+            font-size: 1.5em;
+            margin: 10px;
+            color: #01579b;
+            animation: fade-in-out 2s infinite;
+        }
+        @keyframes fade-in-out {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .object-container {
+            display: inline-block;
+            padding: 20px;
+        }
+        .object {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+        .object:hover {
+            transform: scale(1.2) rotate(5deg);
+            transition: transform 0.3s ease-in-out;
+        }
+        #seeds {
+            width: 80px;
+            top: 30%;
+            left: 10%;
+        }
+        #soil {
+            width: 120px;
+            bottom: 10%;
+            left: 40%;
+        }
+        #kettle {
+            width: 100px;
+            top: 30%;
+            right: 10%;
+        }
+        #water {
+            position: absolute;
+            width: 10px;
+            height: 150px;
+            background: lightblue;
+            border-radius: 5px;
+            top: 60%;
+            left: 45%;
+            display: none;
+        }
+        #flower {
+            position: absolute;
+            width: 100px;
+            bottom: 25%;
+            left: 44%;
+            display: none;
+        }
+        #centerFlower {
+            position: absolute;
+            width: 120px;
+            bottom: 15%;
+            left: 40%;
+            display: none;
+            transition: all 1s ease-in-out;
+        }
+        #exitButton {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0;
+            animation: rise-up 2s ease-in-out forwards;
+        }
+        @keyframes rise-up {
+            0% {
+                bottom: 15%;
+                opacity: 0;
+            }
+            100% {
+                bottom: 50%;
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
-  <div id="game-over" style="display:none;">
-    <div id="win-message">You Win!</div>
-    <button onclick="startGame()">Play Again</button>
-  </div>
+    <h1>Plant a Flower Game</h1>
+    <p id="instruction">Put flower seeds into the soil</p>
+    <div class="container">
+        <div class="object-container">
+            <img src="https://raw.githubusercontent.com/YawenD283/yu2007/main/plant/pic5.png" 
+                 id="seeds" class="object" alt="Flower Seeds">
+        </div>
+        <div class="object-container">
+            <img src="https://raw.githubusercontent.com/YawenD283/yu2007/main/plant/pic9.png" 
+                 id="soil" class="object" alt="Soil with Spade">
+        </div>
+        <div class="object-container">
+            <img src="https://raw.githubusercontent.com/YawenD283/yu2007/main/plant/pic8.png" 
+                 id="kettle" class="object" alt="Water Kettle">
+        </div>
+        <div id="water"></div>
+        <img src="https://raw.githubusercontent.com/YawenD283/yu2007/main/plant/pic7.png" 
+             id="flower" alt="Flower After Watering">
+        <img src="https://raw.githubusercontent.com/YawenD283/yu2007/main/plant/pic6.png" 
+             id="centerFlower" alt="Flower in Center"> 
+    </div>
+    <button id="exitButton">Click on the button to exit</button>
 
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    <script>
+        const seeds = document.getElementById('seeds');
+        const soil = document.getElementById('soil');
+        const kettle = document.getElementById('kettle');
+        const instruction = document.getElementById('instruction');
+        const water = document.getElementById('water');
+        const flower = document.getElementById('flower');
+        const centerFlower = document.getElementById('centerFlower');
+        const exitButton = document.getElementById('exitButton');
 
-    // Game variables
-    let hookAngle = 0;
-    let hookDirection = 1;
-    let isReleasing = false;
-    let goldPieces = [];
-    const hookLength = 100;
-    const hookSpeed = 2;
-    const hookGrabSpeed = 5;
-    let hookEnd = { x: canvas.width / 2, y: 0 };
-    let hookGrab = { x: 0, y: 0 };
+        let step = 1;
 
-    // Generate random gold positions
-    function generateGoldPieces(count) {
-      goldPieces = [];
-      for (let i = 0; i < count; i++) {
-        const x = Math.random() * (canvas.width - 100) + 50;
-        const y = Math.random() * (canvas.height - 200) + 150;
-        goldPieces.push({ x, y, radius: 20, collected: false });
-      }
+        seeds.addEventListener('click', () => {
+    if (step === 1) {
+        seeds.style.left = '45%';
+        seeds.style.top = '65%';
+        setTimeout(() => {
+            seeds.style.animation = 'dropDown 1s forwards';
+            setTimeout(() => {
+                seeds.classList.add('hidden');
+                instruction.textContent = 'Water the soil';
+                step = 2;
+            }, 1000);
+        }, 1000);
     }
+});
 
-    // Draw supplemental lines
-    function drawSupplementalLines() {
-      ctx.strokeStyle = "#ccc";
-      ctx.lineWidth = 1;
-
-      // Horizontal lines
-      for (let y = 50; y < canvas.height; y += 50) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
-      }
-
-      // Vertical lines
-      for (let x = 50; x < canvas.width; x += 50) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
-      }
+kettle.addEventListener('click', () => {
+    if (step === 2) {
+        kettle.style.left = '45%';
+        kettle.style.top = '50%';
+        setTimeout(() => {
+            water.style.display = 'block';
+            setTimeout(() => {
+                water.style.display = 'none';
+                soil.src = "https://raw.githubusercontent.com/YawenD283/yu2007/main/plant/pic7.png";
+                setTimeout(() => {
+                    centerFlower.style.display = 'block';
+                    centerFlower.style.right = '50%';
+                    centerFlower.style.bottom = '50%';
+                    centerFlower.style.transform = 'translate(50%, 50%) scale(2)';
+                    
+                    setTimeout(() => {
+                        centerFlower.style.right = '40%';
+                        centerFlower.style.bottom = '60%';
+                        centerFlower.style.transform = 'scale(0.8)';
+                        
+                        setTimeout(() => {
+                            instruction.textContent = 'Thank you for planting the flower!';
+                            instruction.appendChild(centerFlower);
+                            centerFlower.style.position = 'relative';
+                            centerFlower.style.left = 'calc(100% - 50px)';
+                        }, 2000);
+                    }, 2000);
+                }, 1000);
+                step = 3;
+            }, 2000);
+        }, 1000);
     }
+});
 
-    // Draw hook
-    function drawHook() {
-      ctx.beginPath();
-      ctx.moveTo(canvas.width / 2, 0);
-      ctx.lineTo(hookEnd.x, hookEnd.y);
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 5;
-      ctx.stroke();
-
-      // Draw hook end
-      ctx.beginPath();
-      ctx.arc(hookEnd.x, hookEnd.y, 5, 0, Math.PI * 2);
-      ctx.fillStyle = '#000';
-      ctx.fill();
-    }
-
-    // Draw gold
-    function drawGold() {
-      for (const gold of goldPieces) {
-        if (!gold.collected) {
-          ctx.beginPath();
-          ctx.arc(gold.x, gold.y, gold.radius, 0, Math.PI * 2);
-          ctx.fillStyle = 'gold';
-          ctx.fill();
-          ctx.strokeStyle = '#DAA520';
-          ctx.stroke();
-        }
-      }
-    }
-
-    // Check collision between hook and gold
-    function checkCollision() {
-      for (const gold of goldPieces) {
-        if (!gold.collected) {
-          const dx = gold.x - hookGrab.x;
-          const dy = gold.y - hookGrab.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          if (distance < gold.radius + 5) {
-            gold.collected = true;
-            return true;
-          }
-        }
-      }
-      return false;
-    }
-
-    // Reset game
-    function resetGame() {
-      hookAngle = 0;
-      hookDirection = 1;
-      isReleasing = false;
-      generateGoldPieces(5); // Set the number of gold pieces here
-    }
-
-    // Start game
-    function startGame() {
-      resetGame();
-      document.getElementById('game-over').style.display = 'none';
-      animate();
-    }
-
-    // Game loop
-    function animate() {
-      if (goldPieces.every(g => g.collected)) {
-        document.getElementById('game-over').style.display = 'block';
-        return;
-      }
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Swing the hook
-      if (!isReleasing) {
-        hookAngle += hookSpeed * hookDirection;
-        if (hookAngle > 45 || hookAngle < -45) {
-          hookDirection *= -1;
-        }
-      }
-
-      // Calculate hook position
-      const rad = (hookAngle * Math.PI) / 180;
-      if (!isReleasing) {
-        hookEnd.x = canvas.width / 2 + Math.cos(rad) * hookLength;
-        hookEnd.y = Math.sin(rad) * hookLength;
-      } else {
-        hookGrab.x += hookGrabSpeed * Math.cos(rad);
-        hookGrab.y += hookGrabSpeed * Math.sin(rad);
-        hookEnd.x = hookGrab.x;
-        hookEnd.y = hookGrab.y;
-
-        // Check collision with gold
-        if (checkCollision()) {
-          resetGame();
-          return;
-        }
-
-        // Stop hook if out of bounds
-        if (hookEnd.x < 0 || hookEnd.x > canvas.width || hookEnd.y > canvas.height) {
-          resetGame();
-          return;
-        }
-      }
-
-      drawSupplementalLines();
-      drawHook();
-      drawGold();
-      requestAnimationFrame(animate);
-    }
-
-    // Handle input
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && !isReleasing) {
-        isReleasing = true;
-        hookGrab.x = hookEnd.x;
-        hookGrab.y = hookEnd.y;
-      }
-    });
-
-    // Initialize game
-    startGame();
-  </script>
+        exitButton.addEventListener('click', () => {
+            alert('Goodbye!');
+            window.location.reload();
+        });
+    </script>
 </body>
 </html>
