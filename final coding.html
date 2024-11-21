@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Learning Game</title>
+  <script src="https://unpkg.com/jspsych@8.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.0.0"></script>
+  <link href="https://unpkg.com/jspsych@8.0.0/css/jspsych.css" rel="stylesheet" type="text/css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@jspsych/plugin-preload@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.2.1"></script>
+
+  <style>
+    /* Reset default margin, padding, and box sizing */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Body styling */
+    body {
+      background: linear-gradient(135deg, #c2e9fb, #a1c4fd); /* Soft gradient */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100%;
+      overflow-x: hidden;
+      color: #333;
+    }
+
+    /* Main container for jsPsych */
+    .jspsych-display-element {
+      max-width: 100%;
+      text-align: center;
+      padding: 50px;
+      background: #ffffff;
+      box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+      transition: transform 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    /* Add hover effect to the container */
+    .jspsych-display-element:hover {
+      transform: scale(1.02);
+    }
+
+    /* Styling for the stimulus text */
+    .jspsych-html-keyboard-response-stimulus {
+      font-size: 1.6em;
+      color: #4a4a4a;
+      line-height: 1.8;
+      margin-bottom: 1.5em;
+      text-align: center;
+      animation: fadeIn 1.5s ease-in-out;
+      width: 100%;
+    }
+
+    /* Keyframe animation for fading in */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Custom typing effect animation */
+    @keyframes typing {
+      from {
+        width: 0;
+      }
+      to {
+        width: 100%;
+      }
+    }
+
+    @keyframes blink {
+      from,
+      to {
+        border-color: transparent;
+      }
+      50% {
+        border-color: #4a4a4a;
+      }
+    }
+
+    /* Press any key styling */
+    .press-any-key {
+      opacity: 0;
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-top: 20px;
+      color: #444;
+      animation: fadeIn 2s ease-in-out forwards;
+    }
+
+    /* Image container styling */
+    .image-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 20px;
+      gap: 40px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    /* Individual image styling */
+    .image-container img {
+      width: 300px;
+      height: auto;
+      border-radius: 12px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Hover effect for images */
+    .image-container img:hover {
+      transform: scale(1.1);
+      box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Timer styling */
+    .timer {
+      font-size: 2em;
+      color: #444;
+      margin-top: 20px;
+      font-weight: bold;
+      font-family: 'Poppins', sans-serif;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    /* Countdown overlay */
+    .countdown-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+      color: white;
+      font-size: 6em;
+      font-weight: bold;
+      z-index: 100;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* Fullscreen button styling */
+    .jspsych-fullscreen-btn {
+      display: block;
+      margin: 0 auto;
+      padding: 12px 30px;
+      font-size: 20px;
+      font-weight: 600;
+      color: #ffffff;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Hover effect for fullscreen button */
+    .jspsych-fullscreen-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Responsive design for smaller screens */
+    @media (max-width: 768px) {
+      .image-container img {
+        width: 80%; /* Scale down images for mobile */
+      }
+
+      .jspsych-html-keyboard-response-stimulus {
+        font-size: 1.2em; /* Smaller font for text */
+      }
+
+      .timer {
+        font-size: 1.5em; /* Adjust timer size */
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    
+    var jsPsych = initJsPsych({
+      override_safe_mode: true
+    });
+
+    const subject_id = jsPsych.randomization.randomID(10);
+    function generateFilename(condition) {
+        const timestamp = new Date().toISOString().replace(/:/g, '-');
+        return `${subject_id}_condition${condition}_${timestamp}.csv`;
+    }
+    const condition1_filename = generateFilename(1);
+    const condition2_filename = generateFilename(2);
+    const condition3_filename = generateFilename(3);
+
+    var timeline = [];
+
+    var enter_fullscreen = {
+    type: jsPsychFullscreen,
+    fullscreen_mode: true,
+    message: `
+    <div style="font-size: 36px; line-height: 1; color: #333; text-align: center; margin-bottom: 30px;">
+        This study should be taken in fullscreen mode.<br><br>
+    Please press the button below to continue.
+    </div>
+    `,
+    button_label: 'Enter Fullscreen',
+  };
+    timeline.push(enter_fullscreen);
+
+    var welcome = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <div class="jspsych-html-keyboard-response-stimulus">
+          <p style="font-size: 48px;">Welcome to the experiment! 😊</p>
+          <p style="font-size: 36px;">Press any key to begin.</p>
+        </div>
+      `,
+    };
+    timeline.push(welcome);
+
+    var instructions = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <div class="jspsych-html-keyboard-response-stimulus" style="font-size: 36px; line-height: 1.8;">
+          <p id="line1"></p>
+          <p id="line2"></p>
+          <p id="line3"></p>
+          <p id="line4"></p>
+          <p id="line5"></p>
+          <p id="line6"></p>
+          <p id="line7"></p>
+          <p id="line8"></p>
+          <div id="press-any-key" class="press-any-key" style="display: none; font-size: 36px; margin-top: 20px;">Press any key to begin</div>
+        </div>
+     `,
+     choices:"NO_KEYS",
+      on_load: function () {
+        const lines = [
+          "In this study, you'll be shown images and listen to pseudo-word audio recordings.",
+          "Your goal is to learn the meaning of these words.",
+          "Each set of images and words will be shown for a few seconds.",
+          "The sets will change automatically.",
+          "There are three sections of image and word sets in this study.",
+          "After each section, you will take a brief knowledge test."
+        ];
+        
+        const sentenceDelay = 1000; 
+
+        function typeLine(lineIndex) {
+          if (lineIndex < lines.length) {
+            const element = document.getElementById('line' + (lineIndex + 1));
+            element.textContent  = lines[lineIndex];
+            element.classList.remove('typing-effect');
+                setTimeout(() => {
+                  typeLine(lineIndex + 1); // Type the next line with a delay
+                }, sentenceDelay);
+          } else {
+            const pressKeyElement = document.getElementById('press-any-key');
+        pressKeyElement.style.display = "block"; // Change display to make it visible
+        pressKeyElement.style.opacity = 1;
+
+            jsPsych.pluginAPI.getKeyboardResponse({
+          callback_function: jsPsych.finishTrial, 
+          valid_responses: "ALL_KEYS", 
+          persist: false, 
+        });
+      }
+    }
+
+        setTimeout(() => {
+          typeLine(0);
+        }, 500);
+    }
+};
+
+ timeline.push(instructions);
+
+    var preload = {
+      type: jsPsychPreload,
+      images: [
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition1/image/1.bmp",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition1/image/2.bmp"
+      ],
+      audio: [
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition1/audio/1.mp3",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition1/audio/2.mp3"
+      ]
+    };
+    timeline.push(preload);
+
+    const imageBaseURL = "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition1/image/";
+    const audioBaseURL = "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition1/audio/";
+    const fileExtensionImage = ".bmp";
+    const fileExtensionAudio = ".mp3";
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]]; 
+      }
+    }
+
+    function createImageAudioTrial(image_a, image_b, audio_a, audio_b) {
+      var images = [image_a, image_b];
+      var audios = [audio_a, audio_b];
+      shuffleArray(images);
+      shuffleArray(audios);
+
+      var preload = {
+        type: jsPsychPreload,
+        images: images,
+        audio: audios
+      };
+
+      var showImagesTrial = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div class="image-container">
+        <img src="${images[0]}" alt="Image 1">
+        <img src="${images[1]}" alt="Image 2">
+      </div>
+    `,
+    choices: "NO_KEYS",
+    trial_duration: 1000,};
+
+      var imageAudioTrial = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: `
+          <div class="image-container">
+            <img src="${images[0]}" alt="Image 1">
+            <img src="${images[1]}" alt="Image 2">
+          </div>
+          <div class="timer">Time Remaining: <span id="timer">6</span> seconds</div>
+          <audio id="audio_a">
+            <source src="${audios[0]}">
+          </audio>
+          <audio id="audio_b">
+            <source src="${audios[1]}">
+          </audio>
+         `
+        ,
+        choices: "NO_KEYS",
+        trial_duration: 6000,
+        on_load: () => {
+          const audio_a = document.getElementById('audio_a');
+          const audio_b = document.getElementById('audio_b');
+          const timerElement = document.getElementById('timer');
+          let startTime = Date.now();
+          let timeRemaining = 6;
+
+          const timerInterval = setInterval(() => {
+            let currentTime = Date.now();
+            let elapsedTime = Math.floor((currentTime - startTime) / 1000);
+            timeRemaining = 6 - elapsedTime;
+            timerElement.textContent = timeRemaining;
+            if (timeRemaining <= 0) {
+              clearInterval(timerInterval);
+            }
+          }, 1000);
+
+          audio_a.play();
+          audio_a.onended = function () {
+            setTimeout(function () {
+              audio_b.play(); // Play the second audio after a delay
+            }, 1000);
+          };
+
+          // Error handling for audio playback
+          audio_a.onerror = () => console.log("Error playing audio_a");
+          audio_b.onerror = () => console.log("Error playing audio_b");
+        }
+      };
+      return [preload,showImagesTrial,imageAudioTrial];
+    }
+
+    // Trial mappings
+    const trialMappings = [
+    { trial: 10, imageA: 1, imageB: 3, audioA: 1, audioB: 3 },
+  { trial: 11, imageA: 2, imageB: 4, audioA: 2, audioB: 4 },
+  { trial: 12, imageA: 5, imageB: 7, audioA: 5, audioB: 7 },
+  { trial: 13, imageA: 6, imageB: 8, audioA: 6, audioB: 8 },
+  { trial: 14, imageA: 9, imageB: 11, audioA: 9, audioB: 11 },
+  { trial: 15, imageA: 10, imageB: 12, audioA: 10, audioB: 12 },
+  { trial: 16, imageA: 13, imageB: 15, audioA: 13, audioB: 15 },
+  { trial: 17, imageA: 14, imageB: 16, audioA: 14, audioB: 16 },
+  { trial: 18, imageA: 17, imageB: 1, audioA: 17, audioB: 1 },
+  { trial: 19, imageA: 2, imageB: 3, audioA: 2, audioB: 3 },
+  { trial: 20, imageA: 4, imageB: 5, audioA: 4, audioB: 5 },
+  { trial: 21, imageA: 6, imageB: 7, audioA: 6, audioB: 7 },
+  { trial: 22, imageA: 8, imageB: 9, audioA: 8, audioB: 9 },
+  { trial: 23, imageA: 10, imageB: 11, audioA: 10, audioB: 11 },
+  { trial: 24, imageA: 12, imageB: 13, audioA: 12, audioB: 13 },
+  { trial: 25, imageA: 14, imageB: 15, audioA: 14, audioB: 15 },
+  { trial: 26, imageA: 16, imageB: 17, audioA: 16, audioB: 17 },
+  { trial: 27, imageA: 18, imageB: 1, audioA: 18, audioB: 1 },
+  { trial: 28, imageA: 2, imageB: 5, audioA: 2, audioB: 5 },
+  { trial: 29, imageA: 3, imageB: 6, audioA: 3, audioB: 6 },
+  { trial: 30, imageA: 4, imageB: 7, audioA: 4, audioB: 7 },
+  { trial: 31, imageA: 8, imageB: 10, audioA: 8, audioB: 10 },
+  { trial: 32, imageA: 9, imageB: 12, audioA: 9, audioB: 12 },
+  { trial: 33, imageA: 11, imageB: 13, audioA: 11, audioB: 13 },
+  { trial: 34, imageA: 14, imageB: 16, audioA: 14, audioB: 16 },
+  { trial: 35, imageA: 15, imageB: 17, audioA: 15, audioB: 17 },
+  { trial: 36, imageA: 18, imageB: 2, audioA: 18, audioB: 2 },
+  { trial: 37, imageA: 3, imageB: 5, audioA: 3, audioB: 5 },
+  { trial: 38, imageA: 6, imageB: 8, audioA: 6, audioB: 8 },
+  { trial: 39, imageA: 9, imageB: 11, audioA: 9, audioB: 11 },
+  { trial: 40, imageA: 12, imageB: 14, audioA: 12, audioB: 14 },
+  { trial: 41, imageA: 15, imageB: 18, audioA: 15, audioB: 18 },
+  { trial: 42, imageA: 1, imageB: 4, audioA: 1, audioB: 4 },
+  { trial: 43, imageA: 5, imageB: 7, audioA: 5, audioB: 7 },
+  { trial: 44, imageA: 8, imageB: 10, audioA: 8, audioB: 10 },
+  { trial: 45, imageA: 11, imageB: 13, audioA: 11, audioB: 13 },
+  { trial: 46, imageA: 16, imageB: 18, audioA: 16, audioB: 18 },
+  { trial: 47, imageA: 1, imageB: 6, audioA: 1, audioB: 6 },
+  { trial: 48, imageA: 3, imageB: 9, audioA: 3, audioB: 9 },
+  { trial: 49, imageA: 5, imageB: 11, audioA: 5, audioB: 11 },
+  { trial: 50, imageA: 7, imageB: 13, audioA: 7, audioB: 13 },
+  { trial: 51, imageA: 10, imageB: 15, audioA: 10, audioB: 15 },
+  { trial: 52, imageA: 12, imageB: 16, audioA: 12, audioB: 16 },
+  { trial: 53, imageA: 14, imageB: 18, audioA: 14, audioB: 18 },
+  { trial: 54, imageA: 2, imageB: 8, audioA: 2, audioB: 8 }
+    ];
+
+    const randomizedTrials = trialMappings.sort(() => Math.random() - 0.5);
+
+    for (let i = 0; i < randomizedTrials.length; i++) {
+      const { imageA, imageB, audioA, audioB } = randomizedTrials[i];
+      let imageAURL = `${imageBaseURL}${imageA}${fileExtensionImage}`;
+      let imageBURL = `${imageBaseURL}${imageB}${fileExtensionImage}`;
+      let audioAURL = `${audioBaseURL}${audioA}${fileExtensionAudio}`;
+      let audioBURL = `${audioBaseURL}${audioB}${fileExtensionAudio}`;
+
+      timeline.push(...createImageAudioTrial(imageAURL, imageBURL, audioAURL, audioBURL));
+    }
+
+    // Condition 1 Test Instructions
+    var test_instructions = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <div class="jspsych-html-keyboard-response-stimulus" style="font-size: 36px; line-height: 1.8;">
+          <p id="line1"></p>
+          <p id="line2"></p>
+          <p id="line3"></p>
+          <p id="line4"></p>
+          <p id="line5"></p>
+          <p id="line6"></p>
+          <div class="press-any-key" style="opacity: 0;font-size: 36px; margin-top: 20px;">Press any key to begin</div>
+        </div>
+     `,
+     choices:"NO_KEYS",
+      on_load: function () {
+        const lines = [
+          "Now that you've completed the learning phase, it's time for a test.",
+          "In each question, you will hear a word and see four images on the screen.",
+          "Your task is to identify the meaning of the word played.",
+          "Use the mouse to select your answer.",
+          "You will not receive feedback during this test.",
+          "But your performance will be recorded."
+        ];
+        
+        const sentenceDelay = 1000; 
+
+        function typeLine(lineIndex) {
+          if (lineIndex < lines.length) {
+            const element = document.getElementById('line' + (lineIndex + 1));
+            element.textContent  = lines[lineIndex];
+            element.classList.remove('typing-effect');
+                setTimeout(() => {
+                  typeLine(lineIndex + 1); // Type the next line with a delay
+                }, sentenceDelay);
+          } else {
+            document.querySelector('.press-any-key').style.opacity = 1;
+            jsPsych.pluginAPI.getKeyboardResponse({
+          callback_function: jsPsych.finishTrial, 
+          valid_responses: "ALL_KEYS", 
+          persist: false, 
+        });
+      }
+    }
+
+        setTimeout(() => {
+          typeLine(0);
+        }, 500);
+    }
+};
+
+ timeline.push(test_instructions);
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// Generate Test Trials
+var test_items = Array.from({ length: 18 }, (_, i) => i + 1);
+var test_trials = test_items.map((item) => {
+  let foils = shuffleArray(test_items.filter((x) => x !== item)).slice(0, 3);
+  let options = shuffleArray([item, ...foils]);
+
+  const letterChoices = ["A", "B", "C", "D"];
+  const choiceMapping = options.map((option, index) => ({
+    label: letterChoices[index],
+    value: option,
+  }));
+
+  return {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <div style="text-align: center;">
+        <p>Listen to the audio and select the matching image:</p>
+        <audio src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition1/audio/${item}.mp3" autoplay></audio>
+        <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+          ${choiceMapping
+            .map(
+              (choice) =>
+                `<div style="display: flex; flex-direction: column; align-items: center;">
+                  <button class="jspsych-btn" style="padding: 0; border: none; background: none;">
+                    <img src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition1/image/${choice.value}.bmp" 
+                         alt="Image ${choice.value}" 
+                         style="width: 300px; height: auto; display: block;">
+                  </button>
+                  <div style="margin-top: 50px; font-weight: bold;">${choice.label}</div>
+                </div>`
+            )
+            .join("")}
+        </div>
+      </div>
+    `,
+    choices: letterChoices,
+    data: {
+      correct_choice: letterChoices[options.indexOf(item)],
+      correct_image: `${item}`,
+    },
+    on_finish: function (data) {
+        const letterChoices = ["A", "B", "C", "D"];
+        data.response_letter = letterChoices[data.response];
+        data.correct = data.response_letter === data.correct_choice;
+        data.response_time = data.rt;
+},
+
+  };
+});
+
+timeline.push(...test_trials);
+
+var save_data_condition1 = {
+  type: jsPsychPipe,
+  action: "save",
+  experiment_id: "fgtw92SxkLKC",
+  filename: condition1_filename,
+  data_string: () => jsPsych.data.get().csv(),
+  on_finish: function() {
+    jsPsych.data.reset();
+  }
+};
+timeline.push(save_data_condition1);
+
+// Condition 2
+
+var instructions2 = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <div class="jspsych-html-keyboard-response-stimulus">
+          <p id="line1"></p>
+          <p id="line2"></p>
+          <div class="press-any-key" style="opacity: 0;">Press any key to begin</div>
+        </div>
+        `
+      ,
+      on_load: function () {
+        const lines = [
+          "Well Done! You can now take a break if you'd like. 😊 ",
+          "Press any key when you're ready to continue to the next section."
+        ];
+        
+        const sentenceDelay = 1000; 
+
+function typeLine(lineIndex) {
+  if (lineIndex < lines.length) {
+    const element = document.getElementById('line' + (lineIndex + 1));
+    element.textContent  = lines[lineIndex];
+    element.classList.remove('typing-effect');
+        setTimeout(() => {
+          typeLine(lineIndex + 1); // Type the next line with a delay
+        }, sentenceDelay);
+  } else {
+    document.querySelector('.press-any-key').style.opacity = 1;
+    jsPsych.pluginAPI.getKeyboardResponse({
+  callback_function: jsPsych.finishTrial, 
+  valid_responses: "ALL_KEYS", 
+  persist: false, 
+});
+}
+}
+        setTimeout(() => {
+          typeLine(0); // Start typing the first line
+        }, 500);
+      }
+    };
+    timeline.push(instructions2);
+
+    const imageBaseURL2 = "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition2/image/";
+    const audioBaseURL2 = "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition2/audio/";
+    const fileExtensionImage2 = ".jpg";
+    const fileExtensionAudio2 = ".mp3";
+
+    var preload2 = {
+      type: jsPsychPreload,
+      images: [
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition2/image/1.jpg",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition2/image/3.jpg",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition2/image/5.jpg"
+      ],
+      audio: [
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition2/audio/1.mp3",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition2/audio/3.mp3",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition2/audio/5.mp3"
+      ]
+    };
+    timeline.push(preload2);
+
+    function createImageAudioTrial2(image_a, image_b, image_c, audio_a, audio_b, audio_c) {
+  var images = [image_a, image_b, image_c];
+  var audios = [audio_a, audio_b, audio_c];
+  shuffleArray(images);
+  shuffleArray(audios);
+
+  var preload = {
+    type: jsPsychPreload,
+    images: images,
+    audio: audios
+  };
+
+  var showImagesTrial2 = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div class="image-container">
+        <img src="${images[0]}" alt="Image 1">
+        <img src="${images[1]}" alt="Image 2">
+        <img src="${images[2]}" alt="Image 3">
+      </div>
+    `,
+    choices: "NO_KEYS",
+    trial_duration:1000, 
+  };
+  var imageAudioTrial2 = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div class="image-container">
+        <img src="${images[0]}" alt="Image 1">
+        <img src="${images[1]}" alt="Image 2">
+        <img src="${images[2]}" alt="Image 3">
+      </div>
+      <div class="timer">Time Remaining: <span id="timer">6</span> seconds</div>
+      <audio id="audio_a">
+        <source src="${audios[0]}" type="audio/mp3">
+      </audio>
+      <audio id="audio_b">
+        <source src="${audios[1]}" type="audio/mp3">
+      </audio>
+      <audio id="audio_c">
+        <source src="${audios[2]}" type="audio/mp3">
+      </audio>
+     `,
+    choices: "NO_KEYS",
+    trial_duration: 9000,
+    on_load: () => {
+      const audio_a = document.getElementById('audio_a');
+      const audio_b = document.getElementById('audio_b');
+      const audio_c = document.getElementById('audio_c');
+      const timerElement = document.getElementById('timer');
+      let startTime = Date.now();
+      let timeRemaining = 9;
+
+      timerElement.textContent = timeRemaining;
+
+      const timerInterval = setInterval(() => {
+        let currentTime = Date.now();
+        let elapsedTime = Math.floor((currentTime - startTime) / 1000);
+        timeRemaining = 9 - elapsedTime;
+        timerElement.textContent = timeRemaining;
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+        }
+      }, 1000);
+
+      audio_a.play();
+      audio_a.onended = function () {
+        setTimeout(function () {
+          audio_b.play(); // Play the second audio after a delay
+        }, 1000);
+      };
+      audio_b.onended = function () {
+        setTimeout(function () {
+          audio_c.play(); // Play the third audio after a delay
+        }, 1000);
+      };
+
+      // Error handling for audio playback
+      audio_a.onerror = () => console.log("Error playing audio_a");
+      audio_b.onerror = () => console.log("Error playing audio_b");
+      audio_c.onerror = () => console.log("Error playing audio_c");
+    }
+  };
+
+  return [preload,showImagesTrial2, imageAudioTrial2];
+}
+
+    const trialMappings2 = [
+  { trial: 1,  imageA: 1,  imageB: 3,  imageC: 5,  audioA: 1,  audioB: 3,  audioC: 5 },
+  { trial: 2,  imageA: 2,  imageB: 4,  imageC: 6,  audioA: 2,  audioB: 4,  audioC: 6 },
+  { trial: 3,  imageA: 7,  imageB: 9,  imageC: 11, audioA: 7,  audioB: 9,  audioC: 11 },
+  { trial: 4,  imageA: 8,  imageB: 10, imageC: 12, audioA: 8,  audioB: 10, audioC: 12 },
+  { trial: 5,  imageA: 13, imageB: 15, imageC: 17, audioA: 13, audioB: 15, audioC: 17 },
+  { trial: 6,  imageA: 14, imageB: 16, imageC: 18, audioA: 14, audioB: 16, audioC: 18 },
+  { trial: 7,  imageA: 1,  imageB: 2,  imageC: 3,  audioA: 1,  audioB: 2,  audioC: 3 },
+  { trial: 8,  imageA: 4,  imageB: 5,  imageC: 6,  audioA: 4,  audioB: 5,  audioC: 6 },
+  { trial: 9,  imageA: 7,  imageB: 8,  imageC: 9,  audioA: 7,  audioB: 8,  audioC: 9 },
+  { trial: 10, imageA: 10, imageB: 11, imageC: 12, audioA: 10, audioB: 11, audioC: 12 },
+  { trial: 11, imageA: 13, imageB: 14, imageC: 15, audioA: 13, audioB: 14, audioC: 15 },
+  { trial: 12, imageA: 16, imageB: 17, imageC: 18, audioA: 16, audioB: 17, audioC: 18 },
+  { trial: 13, imageA: 1,  imageB: 4,  imageC: 7,  audioA: 1,  audioB: 4,  audioC: 7 },
+  { trial: 14, imageA: 2,  imageB: 5,  imageC: 8,  audioA: 2,  audioB: 5,  audioC: 8 },
+  { trial: 15, imageA: 3,  imageB: 6,  imageC: 9,  audioA: 3,  audioB: 6,  audioC: 9 },
+  { trial: 16, imageA: 10, imageB: 13, imageC: 16, audioA: 10, audioB: 13, audioC: 16 },
+  { trial: 17, imageA: 11, imageB: 14, imageC: 17, audioA: 11, audioB: 14, audioC: 17 },
+  { trial: 18, imageA: 12, imageB: 15, imageC: 18, audioA: 12, audioB: 15, audioC: 18 },
+  { trial: 19, imageA: 1,  imageB: 2,  imageC: 3,  audioA: 1,  audioB: 2,  audioC: 3 },
+  { trial: 20, imageA: 4,  imageB: 5,  imageC: 6,  audioA: 4,  audioB: 5,  audioC: 6 },
+  { trial: 21, imageA: 7,  imageB: 8,  imageC: 9,  audioA: 7,  audioB: 8,  audioC: 9 },
+  { trial: 22, imageA: 10, imageB: 11, imageC: 12, audioA: 10, audioB: 11, audioC: 12 },
+  { trial: 23, imageA: 13, imageB: 14, imageC: 15, audioA: 13, audioB: 14, audioC: 15 },
+  { trial: 24, imageA: 16, imageB: 17, imageC: 18, audioA: 16, audioB: 17, audioC: 18 },
+  { trial: 25, imageA: 1,  imageB: 3,  imageC: 5,  audioA: 1,  audioB: 3,  audioC: 5 },
+  { trial: 26, imageA: 2,  imageB: 4,  imageC: 6,  audioA: 2,  audioB: 4,  audioC: 6 },
+  { trial: 27, imageA: 7,  imageB: 9,  imageC: 11, audioA: 7,  audioB: 9,  audioC: 11 },
+  { trial: 28, imageA: 8,  imageB: 10, imageC: 12, audioA: 8,  audioB: 10, audioC: 12 },
+  { trial: 29, imageA: 13, imageB: 15, imageC: 17, audioA: 13, audioB: 15, audioC: 17 },
+  { trial: 30, imageA: 14, imageB: 16, imageC: 18, audioA: 14, audioB: 16, audioC: 18 },
+  { trial: 31, imageA: 1,  imageB: 2,  imageC: 3,  audioA: 1,  audioB: 2,  audioC: 3 },
+  { trial: 32, imageA: 4,  imageB: 5,  imageC: 6,  audioA: 4,  audioB: 5,  audioC: 6 },
+  { trial: 33, imageA: 7,  imageB: 8,  imageC: 9,  audioA: 7,  audioB: 8,  audioC: 9 },
+  { trial: 34, imageA: 10, imageB: 11, imageC: 12, audioA: 10, audioB: 11, audioC: 12 },
+  { trial: 35, imageA: 13, imageB: 14, imageC: 15, audioA: 13, audioB: 14, audioC: 15 },
+  { trial: 36, imageA: 16, imageB: 17, imageC: 18, audioA: 16, audioB: 17, audioC: 18 }
+];
+
+    // Randomize trial order
+    const randomizedTrials2 = trialMappings2.sort(() => Math.random() - 0.5);
+
+    // Push randomized trials to the timeline
+    for (let i = 0; i < randomizedTrials2.length; i++) {
+      const { imageA, imageB, imageC ,audioA, audioB , audioC } = randomizedTrials2[i];
+      let imageAURL2 = `${imageBaseURL2}${imageA}${fileExtensionImage2}`;
+      let imageBURL2= `${imageBaseURL2}${imageB}${fileExtensionImage2}`;
+      let imageCURL2= `${imageBaseURL2}${imageC}${fileExtensionImage2}`;
+      let audioAURL2 = `${audioBaseURL2}${audioA}${fileExtensionAudio2}`;
+      let audioBURL2 = `${audioBaseURL2}${audioB}${fileExtensionAudio2}`;
+      let audioCURL2 = `${audioBaseURL2}${audioC}${fileExtensionAudio2}`;
+
+      timeline.push(...createImageAudioTrial2(imageAURL2, imageBURL2, imageCURL2, audioAURL2, audioBURL2, audioCURL2));
+    }
+
+// Condition 2 Test
+var test_instructions2 = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <div class="jspsych-html-keyboard-response-stimulus" style="font-size: 36px; line-height: 1.8;">
+          <p id="line1"></p>
+          <p id="line2"></p>
+          <p id="line3"></p>
+          <p id="line4"></p>
+          <p id="line5"></p>
+          <p id="line6"></p>
+          <div class="press-any-key" style="opacity: 0;font-size: 36px; margin-top: 20px;">Press any key to begin</div>
+        </div>
+     `,
+     choices:"NO_KEYS",
+      on_load: function () {
+        const lines = [
+          "Now that you've completed the learning phase, it's time for a test.",
+          "In each question, you will hear a word and see four images on the screen.",
+          "Your task is to identify the meaning of the word played.",
+          "Use the mouse to select your answer.",
+          "You will not receive feedback during this test.",
+          "But your performance will be recorded."
+        ];
+        
+        const sentenceDelay = 1000; 
+
+        function typeLine(lineIndex) {
+          if (lineIndex < lines.length) {
+            const element = document.getElementById('line' + (lineIndex + 1));
+            element.textContent  = lines[lineIndex];
+            element.classList.remove('typing-effect');
+                setTimeout(() => {
+                  typeLine(lineIndex + 1); // Type the next line with a delay
+                }, sentenceDelay);
+          } else {
+            document.querySelector('.press-any-key').style.opacity = 1;
+            jsPsych.pluginAPI.getKeyboardResponse({
+          callback_function: jsPsych.finishTrial, 
+          valid_responses: "ALL_KEYS", 
+          persist: false, 
+        });
+      }
+    }
+
+        setTimeout(() => {
+          typeLine(0);
+        }, 500);
+    }
+};
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// Generate Test Trials
+var test_items2 = Array.from({ length: 18 }, (_, i) => i + 1);
+var test_trials2 = test_items2.map((item) => {
+  let foils = shuffleArray(test_items2.filter((x) => x !== item)).slice(0, 3);
+  let options = shuffleArray([item, ...foils]);
+
+  const letterChoices = ["A", "B", "C", "D"];
+  const choiceMapping = options.map((option, index) => ({
+    label: letterChoices[index],
+    value: option,
+  }));
+
+  return {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <div style="text-align: center;">
+        <p>Listen to the audio and select the matching image:</p>
+        <audio src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition2/audio/${item}.mp3" autoplay></audio>
+        <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+          ${choiceMapping
+            .map(
+              (choice) =>
+                `<div style="display: flex; flex-direction: column; align-items: center;">
+                  <button class="jspsych-btn" style="padding: 0; border: none; background: none;">
+                    <img src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition2/image/${choice.value}.jpg" 
+                         alt="Image ${choice.value}" 
+                         style="width: 300px; height: auto; display: block;">
+                  </button>
+                  <div style="margin-top: 50px; font-weight: bold;">${choice.label}</div>
+                </div>`
+            )
+            .join("")}
+        </div>
+      </div>
+    `,
+    choices: letterChoices,
+    data: {
+      correct_choice: letterChoices[options.indexOf(item)],
+      correct_image: `${item}`,
+    },
+    on_finish: function (data) {
+        const letterChoices = ["A", "B", "C", "D"];
+        data.response_letter = letterChoices[data.response];
+        data.correct = data.response_letter === data.correct_choice;
+        data.response_time = data.rt;
+},
+
+  };
+});
+
+timeline.push(...test_trials2);
+
+var save_data_condition2 = {
+  type: jsPsychPipe,
+  action: "save",
+  experiment_id: "fgtw92SxkLKC",
+  filename: condition2_filename,
+  data_string: () => jsPsych.data.get().csv(),
+  on_finish: function() {
+    jsPsych.data.reset();
+  }
+};
+timeline.push(save_data_condition2);
+
+// CONDITION 3
+var instructions3= {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <div class="jspsych-html-keyboard-response-stimulus">
+          <p id="line1"></p>
+          <p id="line2"></p>
+          <p id="line3"></p>
+          <div class="press-any-key" style="opacity: 0;">Press any key to begin</div>
+        </div>
+      `,
+      on_load: function () {
+        const lines = [
+          "Well Done! You can now take a break if you'd like. 😊",
+          "Press any key when you're ready to continue to the next section."
+        ];
+        
+        const sentenceDelay = 1000;
+
+      function typeLine(lineIndex) {
+        if (lineIndex < lines.length) {
+          const element = document.getElementById('line' + (lineIndex + 1));
+          element.textContent = lines[lineIndex];
+          setTimeout(() => {
+            typeLine(lineIndex + 1);
+          }, sentenceDelay);
+     } else {
+        document.querySelector('.press-any-key').style.opacity = 1;
+        jsPsych.pluginAPI.getKeyboardResponse({
+           callback_function: jsPsych.finishTrial,
+           valid_responses: "ALL_KEYS",
+           persist: false
+    });
+  }
+}
+
+        setTimeout(() => {
+          typeLine(0); // Start typing the first line
+        }, 500);
+      }
+    };
+
+    timeline.push(instructions3);
+
+    const imageBaseURL3 = "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition3/image/";
+    const audioBaseURL3 = "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition3/audio/";
+    const fileExtensionImage3 = ".jpg";
+    const fileExtensionAudio3 = ".mp3";
+
+    var preload = {
+      type: jsPsychPreload,
+      images: [
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition3/image/1.jpg",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition3/image/2.jpg",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition3/image/3.jpg",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition3/image/4.jpg"
+      ],
+      audio: [
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition3/audio/1.mp3",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition3/audio/2.mp3",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition3/audio/3.mp3",
+        "https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition3/audio/4.mp3",
+      ]
+    };
+    timeline.push(preload);
+    
+    function createImageAudioTrial3(image_a, image_b, image_c, image_d, audio_a, audio_b, audio_c, audio_d) {
+  var images = [image_a, image_b, image_c, image_d];
+  var audios = [audio_a, audio_b, audio_c, audio_d];
+  shuffleArray(images);  // Shuffle images
+  shuffleArray(audios);  // Shuffle audios
+
+
+  var showImagesTrial3 = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div class="image-container">
+        <img src="${images[0]}" alt="Image 1">
+        <img src="${images[1]}" alt="Image 2">
+        <img src="${images[2]}" alt="Image 3">
+        <img src="${images[3]}" alt="Image 4">
+      </div>
+    `,
+    choices: "NO_KEYS",
+    trial_duration: 1000,};
+
+  var imageAudioTrial3= {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div class="image-container">
+        <img src="${images[0]}" alt="Image 1">
+        <img src="${images[1]}" alt="Image 2">
+        <img src="${images[2]}" alt="Image 3">
+        <img src="${images[3]}" alt="Image 4">
+      </div>
+      <div class="timer">Time Remaining: <span id="timer">6</span> seconds</div>
+      <audio id="audio_a">
+        <source src="${audios[0]}" type="audio/mp3">
+      </audio>
+      <audio id="audio_b">
+        <source src="${audios[1]}" type="audio/mp3">
+      </audio>
+      <audio id="audio_c">
+        <source src="${audios[2]}" type="audio/mp3">
+      </audio>
+      <audio id="audio_d">
+        <source src="${audios[3]}" type="audio/mp3">
+      </audio>
+    `,
+    choices: "NO_KEYS",
+    trial_duration: 12000,
+    on_load: () => {
+      const audio_a = document.getElementById('audio_a');
+      const audio_b = document.getElementById('audio_b');
+      const audio_c = document.getElementById('audio_c');
+      const audio_d = document.getElementById('audio_d');
+      const timerElement = document.getElementById('timer');
+      let startTime = Date.now();
+      let timeRemaining = 12;
+
+      timerElement.textContent = timeRemaining;
+
+      // Timer countdown logic
+      const timerInterval = setInterval(() => {
+        let currentTime = Date.now();
+        let elapsedTime = Math.floor((currentTime - startTime) / 1000);
+        timeRemaining = 12 - elapsedTime;
+        timerElement.textContent = timeRemaining;
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+        }
+      }, 1000);
+
+      // Sequential audio playback with a gap
+      audio_a.play();
+      audio_a.onended = function () {
+        setTimeout(function () {
+          audio_b.play();
+        }, 500);
+      };
+      audio_b.onended = function () {
+        setTimeout(function () {
+          audio_c.play();
+        }, 500);
+      };
+      audio_c.onended = function () {
+        setTimeout(function () {
+          audio_d.play();
+        }, 500);
+      };
+
+      // Error handling
+      audio_a.onerror = () => console.error("Error playing audio_a");
+      audio_b.onerror = () => console.error("Error playing audio_b");
+      audio_c.onerror = () => console.error("Error playing audio_c");
+      audio_d.onerror = () => console.error("Error playing audio_d");
+    }
+  };
+
+  return [showImagesTrial3,imageAudioTrial3];
+}
+
+
+    const trialMappings3 = [
+  { trial: 1,  imageA: 1,  imageB: 2,  imageC: 3,  imageD: 4,  audioA: 1,  audioB: 2,  audioC: 3,  audioD: 4 },
+  { trial: 2,  imageA: 5,  imageB: 6,  imageC: 7,  imageD: 8,  audioA: 5,  audioB: 6,  audioC: 7,  audioD: 8 },
+  { trial: 3,  imageA: 9,  imageB: 10, imageC: 11, imageD: 12, audioA: 9,  audioB: 10, audioC: 11, audioD: 12 },
+  { trial: 4,  imageA: 13, imageB: 14, imageC: 15, imageD: 16, audioA: 13, audioB: 14, audioC: 15, audioD: 16 },
+  { trial: 5,  imageA: 17, imageB: 18, imageC: 1,  imageD: 2,  audioA: 17, audioB: 18, audioC: 1,  audioD: 2 },
+  { trial: 6,  imageA: 3,  imageB: 4,  imageC: 5,  imageD: 6,  audioA: 3,  audioB: 4,  audioC: 5,  audioD: 6 },
+  { trial: 7,  imageA: 7,  imageB: 8,  imageC: 9,  imageD: 10, audioA: 7,  audioB: 8,  audioC: 9,  audioD: 10 },
+  { trial: 8,  imageA: 11, imageB: 12, imageC: 13, imageD: 14, audioA: 11, audioB: 12, audioC: 13, audioD: 14 },
+  { trial: 9,  imageA: 15, imageB: 16, imageC: 17, imageD: 18, audioA: 15, audioB: 16, audioC: 17, audioD: 18 },
+  { trial: 10, imageA: 1,  imageB: 3,  imageC: 5,  imageD: 7,  audioA: 1,  audioB: 3,  audioC: 5,  audioD: 7 },
+  { trial: 11, imageA: 9,  imageB: 11, imageC: 13, imageD: 15, audioA: 9,  audioB: 11, audioC: 13, audioD: 15 },
+  { trial: 12, imageA: 17, imageB: 2,  imageC: 4,  imageD: 6,  audioA: 17, audioB: 2,  audioC: 4,  audioD: 6 },
+  { trial: 13, imageA: 8,  imageB: 10, imageC: 12, imageD: 14, audioA: 8,  audioB: 10, audioC: 12, audioD: 14 },
+  { trial: 14, imageA: 16, imageB: 18, imageC: 1,  imageD: 3,  audioA: 16, audioB: 18, audioC: 1,  audioD: 3 },
+  { trial: 15, imageA: 5,  imageB: 7,  imageC: 9,  imageD: 11, audioA: 5,  audioB: 7,  audioC: 9,  audioD: 11 },
+  { trial: 16, imageA: 13, imageB: 15, imageC: 17, imageD: 2,  audioA: 13, audioB: 15, audioC: 17, audioD: 2 },
+  { trial: 17, imageA: 4,  imageB: 6,  imageC: 8,  imageD: 10, audioA: 4,  audioB: 6,  audioC: 8,  audioD: 10 },
+  { trial: 18, imageA: 12, imageB: 14, imageC: 16, imageD: 18, audioA: 12, audioB: 14, audioC: 16, audioD: 18 },
+  { trial: 19, imageA: 1,  imageB: 2,  imageC: 3,  imageD: 4,  audioA: 1,  audioB: 2,  audioC: 3,  audioD: 4 },
+  { trial: 20, imageA: 5,  imageB: 6,  imageC: 7,  imageD: 8,  audioA: 5,  audioB: 6,  audioC: 7,  audioD: 8 },
+  { trial: 21, imageA: 9,  imageB: 10, imageC: 11, imageD: 12, audioA: 9,  audioB: 10, audioC: 11, audioD: 12 },
+  { trial: 22, imageA: 13, imageB: 14, imageC: 15, imageD: 16, audioA: 13, audioB: 14, audioC: 15, audioD: 16 },
+  { trial: 23, imageA: 17, imageB: 18, imageC: 1,  imageD: 2,  audioA: 17, audioB: 18, audioC: 1,  audioD: 2 },
+  { trial: 24, imageA: 3,  imageB: 4,  imageC: 5,  imageD: 6,  audioA: 3,  audioB: 4,  audioC: 5,  audioD: 6 },
+  { trial: 25, imageA: 7,  imageB: 8,  imageC: 9,  imageD: 10, audioA: 7,  audioB: 8,  audioC: 9,  audioD: 10 },
+  { trial: 26, imageA: 11, imageB: 12, imageC: 13, imageD: 14, audioA: 11, audioB: 12, audioC: 13, audioD: 14 },
+  { trial: 27, imageA: 15, imageB: 16, imageC: 17, imageD: 18, audioA: 15, audioB: 16, audioC: 17, audioD: 18 }
+];
+   
+   const randomizedTrials3 = trialMappings3.sort(() => Math.random() - 0.5);
+
+// Push randomized trials to the timeline
+for (let i = 0; i < randomizedTrials3.length; i++) {
+    const { imageA, imageB, imageC , imageD, audioA, audioB , audioC, audioD} = randomizedTrials3[i];
+      let imageAURL3 = `${imageBaseURL3}${imageA}${fileExtensionImage3}`;
+      let imageBURL3= `${imageBaseURL3}${imageB}${fileExtensionImage3}`;
+      let imageCURL3= `${imageBaseURL3}${imageC}${fileExtensionImage3}`;
+      let imageDURL3= `${imageBaseURL3}${imageD}${fileExtensionImage3}`;
+      let audioAURL3 = `${audioBaseURL3}${audioA}${fileExtensionAudio3}`;
+      let audioBURL3 = `${audioBaseURL3}${audioB}${fileExtensionAudio3}`;
+      let audioCURL3 = `${audioBaseURL3}${audioC}${fileExtensionAudio3}`;
+      let audioDURL3= `${audioBaseURL3}${audioD}${fileExtensionAudio3}`;
+
+  timeline.push( ...createImageAudioTrial3(imageAURL3, imageBURL3, imageCURL3, imageDURL3,audioAURL3, audioBURL3, audioCURL3,audioDURL3));
+}
+
+// Condition 3 Test
+var test_instructions3 = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <div class="jspsych-html-keyboard-response-stimulus" style="font-size: 36px; line-height: 1.8;">
+          <p id="line1"></p>
+          <p id="line2"></p>
+          <p id="line3"></p>
+          <p id="line4"></p>
+          <p id="line5"></p>
+          <p id="line6"></p>
+          <div class="press-any-key" style="opacity: 0;font-size: 36px; margin-top: 20px;">Press any key to begin</div>
+        </div>
+     `,
+     choices:"NO_KEYS",
+      on_load: function () {
+        const lines = [
+          "Now that you've completed the learning phase, it's time for a test.",
+          "In each question, you will hear a word and see four images on the screen.",
+          "Your task is to identify the meaning of the word played.",
+          "Use the mouse to select your answer.",
+          "You will not receive feedback during this test.",
+          "But your performance will be recorded."
+        ];
+        
+        const sentenceDelay = 1000; 
+
+        function typeLine(lineIndex) {
+          if (lineIndex < lines.length) {
+            const element = document.getElementById('line' + (lineIndex + 1));
+            element.textContent  = lines[lineIndex];
+            element.classList.remove('typing-effect');
+                setTimeout(() => {
+                  typeLine(lineIndex + 1); // Type the next line with a delay
+                }, sentenceDelay);
+          } else {
+            document.querySelector('.press-any-key').style.opacity = 1;
+            jsPsych.pluginAPI.getKeyboardResponse({
+          callback_function: jsPsych.finishTrial, 
+          valid_responses: "ALL_KEYS", 
+          persist: false, 
+        });
+      }
+    }
+
+        setTimeout(() => {
+          typeLine(0);
+        }, 500);
+    }
+};
+
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// Generate Test Trials
+var test_items3 = Array.from({ length: 18 }, (_, i) => i + 1);
+var test_trials3 = test_items3.map((item) => {
+  let foils = shuffleArray(test_items3.filter((x) => x !== item)).slice(0, 3);
+  let options = shuffleArray([item, ...foils]);
+
+  const letterChoices = ["A", "B", "C", "D"];
+  const choiceMapping = options.map((option, index) => ({
+    label: letterChoices[index],
+    value: option,
+  }));
+
+  return {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <div style="text-align: center;">
+        <p>Listen to the audio and select the matching image:</p>
+        <audio src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition3/audio/${item}.mp3" autoplay></audio>
+        <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+          ${choiceMapping
+            .map(
+              (choice) =>
+                `<div style="display: flex; flex-direction: column; align-items: center;">
+                  <button class="jspsych-btn" style="padding: 0; border: none; background: none;">
+                    <img src="https://raw.githubusercontent.com/ucsd-psych201a/yu2007/48c114afcd8b1401910c4b86f7572411bb068248/stimuli/condition3/image/${choice.value}.jpg" 
+                         alt="Image ${choice.value}" 
+                         style="width: 300px; height: 150px; display: block;">
+                  </button>
+                  <div style="margin-top: 50px; font-weight: bold;">${choice.label}</div>
+                </div>`
+            )
+            .join("")}
+        </div>
+      </div>
+    `,
+    choices: letterChoices,
+    data: {
+      correct_choice: letterChoices[options.indexOf(item)],
+      correct_image: `${item}`,
+    },
+    on_finish: function (data) {
+        const letterChoices = ["A", "B", "C", "D"];
+        data.response_letter = letterChoices[data.response];
+        data.correct = data.response_letter === data.correct_choice;
+        data.response_time = data.rt;
+},
+
+  };
+});
+
+timeline.push(test_instructions3);
+timeline.push(...test_trials3);
+
+var save_data_condition3 = {
+  type: jsPsychPipe,
+  action: "save",
+  experiment_id: "fgtw92SxkLKC",
+  filename: condition3_filename,
+  data_string: () => jsPsych.data.get().csv(),
+};
+
+timeline.push(save_data_condition3);
+
+var thank_you_page = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: `
+      <div style="text-align: center; font-size: 18px; line-height: 1.6;">
+        <h1 style="font-size: 24px; color: #4a4a4a;">Thank You for Participating!</h1>
+        <p>We greatly appreciate your participation in this study.</p>
+        <p><strong>Debriefing:</strong></p>
+        <p>This study aims to investigate how individuals learn associations between words and objects through exposure to varying visual and auditory stimuli.</p>
+        <p>Your responses will help us better understand learning processes and may contribute to the design of future educational and cognitive models.</p>
+        <p>If you have any questions about this study or your participation, please contact us:</p>
+        <p>Emails:</p>
+<ul style="list-style-type: none; padding: 0;">
+  <li><a href="mailto:a2park@ucsd.edu">a2park@ucsd.edu</a></li>
+  <li><a href="mailto:hjunyi@ucsd.edu">hjunyi@ucsd.edu</a></li>
+  <li><a href="mailto:pcui@ucsd.edu">pcui@ucsd.edu</a></li>
+  <li><a href="mailto:yad014@ucsd.edu">yad014@ucsd.edu</a></li>
+</ul>
+        <p>Press any key to exit.</p>
+      </div>
+  `,
+};
+
+timeline.push(thank_you_page);
+
+jsPsych.run(timeline);
+
+  </script>
+</body>
+
+</html>
