@@ -1028,6 +1028,7 @@ var test_instructions2 = {
         }, 500);
     }
 };
+timeline.push(test_instructions2);
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -1370,6 +1371,7 @@ function shuffleArray(array) {
   }
   return array;
 }
+timeline.push(test_instructions3);
 
 // Generate Test Trials
 var test_items3 = Array.from({ length: 18 }, (_, i) => i + 1);
@@ -1421,7 +1423,6 @@ var test_trials3 = test_items3.map((item) => {
   };
 });
 
-timeline.push(test_instructions3);
 timeline.push(...test_trials3);
 
 var save_data_condition3 = {
