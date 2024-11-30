@@ -244,15 +244,16 @@
     var consent_form = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: `
+    <div><p style="font-size: 36px; margin-bottom: 15px;">Consent Form</p></div>
     <div style="width: 80%; height: auto; max-height: 600px; margin: auto; overflow-y: scroll; padding: 20px; border: 1px solid #ccc; font-size: 16px; line-height: 1.6; text-align: left;">
-      <h2 style="text-align:center">Consent Form</h2>
-      <p>
+     <p>
         You are being invited to participate in a research study titled 
         “Reproducibility of Psychological Science and Instruction.” This study is being done by 
         Dr. Bria Long from UC San Diego and associated graduate students in the Experimental Methods course. 
         You were selected to participate in this study because you are an adult in the U.S. and have been a 
         represented population in previous psychology studies.
       </p>
+      <br>
       <p>
         The purpose of this study is to better understand how well previously published studies in the 
         psychological field replicate online and with different populations. Your participation in this 
@@ -267,11 +268,13 @@
         that matches a word you hear being said out loud. Your total expected time commitment for this study is between 
         5-30 minutes, and is specified in the study description.
       </p>
+      <br>
       <p>
         Your participation in this study is completely voluntary and you can withdraw at any time. Choosing not to 
         participate or withdrawing will result in no penalty or loss of benefits to which you are entitled. You are 
         free to skip any question that you choose.
       </p>
+      <br>
       <p>
         We will not be asking for any personally identifying information, and we will handle responses as 
         confidentially as possible. Your SONA or Prolific IDs will never be tied to your responses on this survey. 
@@ -281,15 +284,18 @@
         part of this experiment indefinitely. This anonymized data (containing neither Prolific IDs nor IP addresses) may be 
         shared with the scientific community or with other participants to be used as stimuli in future studies.
       </p>
+      <br>
       <p>
         If you have questions about this project or if you have a research-related problem, you may contact the researcher(s), 
         Dr. Bria Long, brlong@ucsd.edu. If you have any questions concerning your rights as a research subject, you may 
         contact the UC San Diego Office of IRB Administration at irb@ucsd.edu or 858-246-4777.
       </p>
+      <br>
       <p>
         By participating in this research, you are indicating that you are at least 18 years old, have read this consent form, 
         and agree to participate in this research study. Please keep this consent form for your records.
       </p>
+      <br>
       <p style="text-align: center; font-weight: bold; margin-top: 20px;">
         Press any key to proceed.
       </p>
@@ -324,7 +330,7 @@ var pretest_instructions = {
           "4. Please make sure your volume is turned on and adjusted to a comfortable level before starting the test.",
         ];
         
-        const sentenceDelay = 1000; 
+        const sentenceDelay = 1500; 
 
         function typeLine(lineIndex) {
           if (lineIndex < lines.length) {
@@ -457,7 +463,7 @@ var instructions = {
           "After each section, you will take a brief knowledge test."
         ];
         
-        const sentenceDelay = 1000; 
+        const sentenceDelay = 1500; 
 
         function typeLine(lineIndex) {
           if (lineIndex < lines.length) {
@@ -1442,7 +1448,7 @@ var thank_you_page = {
         <p><strong>Debriefing:</strong></p>
         <p>This experiment aimed to explore how individuals can learn the meanings of words in highly ambiguous contexts by using statistical information across multiple trials.</p>
         <p>Your responses will help us understand the strategies humans use to match words to objects when no explicit guidance is provided.</p>
-        <p style="margin-top: 20px;">You will be redirected to Prolific</p>
+        <p style="margin-top: 20px;">Press any key to be redirected to Prolific. Thank you!</p>
       </div>
   `,on_finish: function() {
     window.location.href = "https://app.prolific.com/submissions/complete?cc=C1N3YILR";
